@@ -35,7 +35,7 @@ class Ui_MainWindow(object):
         # 设置的字典
         self.dict_setting = {}
         # 文件列表
-        self.csv_file = pd.read_csv("./file.csv")
+        self.csv_file = pd.read_csv("./file.csv", index_col=0)
 
     def setupUi(self, MainWindow):
         # 最外围的主窗口，不要改动
