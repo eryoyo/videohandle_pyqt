@@ -30,9 +30,9 @@ class Ui_MainWindow(object):
         self.VIDEO_STATUS = True
         # 控制播放器进度条是否被点击，也就是当前视频进度正在受到人为调整
         self.VIDEO_SLIDER_STATUS = False
-        
+
         # 中转变量集散地
-        
+
         # 设置的字典
         self.dict_setting = {}
         # 文件列表
@@ -281,7 +281,7 @@ class Ui_MainWindow(object):
         self.sld_video.sliderMoved.connect(self.moveSlider)  # 进度条拖拽跳转
         self.sld_video.ClickedValue.connect(self.clickedSlider)  # 进度条点击跳转
         self.sld_audio.valueChanged.connect(self.volumeChange)  # 控制声音播放
-        self.sld_audio.sliderReleased.connect(self.volumeChanged) # 打印修改后的音量
+        self.sld_audio.sliderReleased.connect(self.volumeChanged)  # 打印修改后的音量
 
         # 控制进度条的源头
         self.timer = QTimer()
@@ -294,9 +294,12 @@ class Ui_MainWindow(object):
         self.listWidget_right_down_left.currentRowChanged.connect(self.stackedWidget_right_down_right.setCurrentIndex)
 
         # 设置页面的槽函数
-        self.checkBox_xiyan.stateChanged.connect(lambda: self.checkStateChange("xiyan", self.checkBox_xiyan.isChecked()))
-        self.checkBox_baoli.stateChanged.connect(lambda: self.checkStateChange("baoli", self.checkBox_baoli.isChecked()))
-        self.checkBox_xuexing.stateChanged.connect(lambda: self.checkStateChange("xuexing", self.checkBox_xuexing.isChecked()))
+        self.checkBox_xiyan.stateChanged.connect(
+            lambda: self.checkStateChange("xiyan", self.checkBox_xiyan.isChecked()))
+        self.checkBox_baoli.stateChanged.connect(
+            lambda: self.checkStateChange("baoli", self.checkBox_baoli.isChecked()))
+        self.checkBox_xuexing.stateChanged.connect(
+            lambda: self.checkStateChange("xuexing", self.checkBox_xuexing.isChecked()))
 
     # 加载设置界面
     def load_setting(self):
@@ -307,16 +310,17 @@ class Ui_MainWindow(object):
         self.checkBox_xiyan.setChecked(self.dict_setting["xiyan"])
         self.checkBox_baoli.setChecked(self.dict_setting["baoli"])
         self.checkBox_xuexing.setChecked(self.dict_setting["xuexing"])
-        
+
     # 加载处理完毕视频列表界面
     def load_page_finish(self):
         print("开始加载处理完毕的视频列表界面。。。")
-        df_finish = self.csv_df[self.csv_df["status"]==1]
-        for finish_item in df_finish:
+        df_finish = self.csv_df[self.csv_df["status"] == 1]
+        for i in range(len(df_finish)):
             item = QListWidgetItem(self.listWidget_page_finish)
-            item_finish = fileRecordView_finish(finish_item)
+            temp = df_finish.iloc[i]
+            item_finish = fileRecordView_finish(df_finish.iloc[i])
         print("处理完毕视频列表界面加载完毕。。。")
-    
+
     # 加载正在处理视频列表界面
     def load_page_wait(self):
         pass
@@ -398,7 +402,7 @@ class Ui_MainWindow(object):
             self.player.play()
             self.btn_play.setText("暂停")
             self.VIDEO_STATUS = True
-            
+
     # 设置选项改变
     def checkStateChange(self, choice, state):
         self.dict_setting[choice] = state

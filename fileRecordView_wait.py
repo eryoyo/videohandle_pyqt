@@ -1,7 +1,7 @@
 import os.path
 
 from PyQt5.QtGui import QPixmap, QImage, QTextOption, QColor
-from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QTextEdit, QFrame
+from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QTextEdit, QFrame, QProgressBar
 from PyQt5 import QtCore
 import cv2
 
@@ -15,9 +15,9 @@ class fileRecordView_wait(QWidget):
 
         # 所需变量
         self.df = df
-        self.index = df.iloc[0, 0]
-        self.filepath = df.iloc[0, 1]
-        self.status = df.iloc[0, 2]
+        self.index = df.iloc[0]
+        self.filepath = df.iloc[1]
+        self.status = df.iloc[2]
 
         # 图片所处的位置
         self.label_image = QLabel(self)
@@ -46,6 +46,19 @@ class fileRecordView_wait(QWidget):
         self.label_filename.setText(self.filename)
         self.label_path.setText("path:")
         self.label_filepath.setText(self.filepath)
+        
+        # 进度条
+        self.layoutWidget = QWidget(self)
+        self.layoutWidget.setGeometry(QtCore.QRect(90, 20, 200, 38))
+        self.layoutWidget.setObjectName("layoutWidget")
+        # self.layoutWidget.setStyleSheet("background: black")
+        self.progress_wait = QProgressBar(self.layoutWidget)
+        self.progress_wait.setValue(25)
+        self.progress_wait.setGeometry(QtCore.QRect(5, 5, 180, 30))
+        self.progress_wait.setStyleSheet("border: 2px solid #bbbbee; min-height: 25px; max-height: 25px; "
+                                         "border-radius: 6px; text-align: center; ::chunk:'border-radius: 6px; "
+                                         "background-color: #ccccee; width: 7px'") 
+        self.progress_wait.setObjectName("progress_wait")
 
     def setAction(self):
         pass
@@ -57,9 +70,10 @@ import pandas as pd
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    app.setStyleSheet(open('./style.qss', 'rb').read().decode('utf-8'))
 
     csv_df = pd.read_csv("./file.csv", index_col=0)
     # 显示窗口
-    win = fileRecordView_wait(csv_df[csv_df["index"] == 0])
+    win = fileRecordView_wait(csv_df[csv_df["index"] == 0].iloc[0])
     win.show()
     sys.exit(app.exec_())

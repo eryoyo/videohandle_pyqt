@@ -1,0 +1,28 @@
+/*设置红色进度条*/
+#progress {
+    border: 2px solid #bbbbee;/*边框以及边框颜色*/
+    min-height: 25px;
+    max-height: 25px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+#progress::chunk {
+    border-radius: 6px;
+    background-color: #ccccee;
+    width: 7px
+} 
+
+#progress_wait {
+    border: 2px solid #bbbbee;/*边框以及边框颜色*/
+    min-height: 25px;
+    max-height: 25px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+#progress_wait::chunk {
+    border-radius: 6px;
+    background-color: #ccccee;
+    width: 7px
+} 

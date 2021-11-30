@@ -16,9 +16,9 @@ class fileRecordView_finish(QWidget):
 
         # 所需变量
         self.df = df
-        self.index = df.iloc[0, 0]
-        self.filepath = df.iloc[0, 1]
-        self.status = df.iloc[0, 2]
+        self.index = df.iloc[0]
+        self.filepath = df.iloc[1]
+        self.status = df.iloc[2]
 
         # 图片所处的位置
         self.label_image = QLabel(self)
@@ -72,11 +72,11 @@ class fileRecordView_finish(QWidget):
         self.checklists = ["xiyan", "baoli", "xuexing", "baoli", "xuexing", "baoli", "xuexing"]
         self.checklists_name = ["吸烟", "暴力", "血腥", "暴力", "血腥", "暴力", "血腥"]
         for i, check in enumerate(self.checklists):
-            if self.df.loc[0, check] == 0:
+            if self.df.loc[check] == 0:
                 continue
             checkbox = QCheckBox(self.scrollAreaWidgetContents)
             checkbox.setText(self.checklists_name[i])
-            if self.df.loc[0, check] == 2:
+            if self.df.loc[check] == 2:
                 checkbox.setChecked(True)
             self.HLayout.addWidget(checkbox)
 
@@ -94,6 +94,6 @@ if __name__ == '__main__':
     csv_df = pd.read_csv("./file.csv", index_col=0)
     print(csv_df)
     # 显示窗口
-    win = fileRecordView_finish(csv_df[csv_df["index"] == 0])
+    win = fileRecordView_finish(csv_df[csv_df["index"] == 0].iloc[0])
     win.show()
     sys.exit(app.exec_())
