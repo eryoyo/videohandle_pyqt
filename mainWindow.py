@@ -332,11 +332,28 @@ class Ui_MainWindow(object):
             item = QListWidgetItem(self.listWidget_page_wait)
             item.setSizeHint(QSize(300, 80))
             item_wait = fileRecordView_wait(df_wait.iloc[i])
+            item_wait.itemSelected.connect(self.waititem_selected)
             self.listWidget_page_wait.setItemWidget(item, item_wait)
         print("等待处理视频列表界面加载完毕。。。")
         
     def finishitem_selected(self, index):
-        print(str(index) + "被选择了")
+        print(str(index) + "finish被选择了")
+        curItem = self.csv_df[self.csv_df["index"] == index].iloc[0]
+        # 视频加载
+        pathUrl = QtCore.QUrl("file://" + curItem["filepath"])
+        print(pathUrl)
+        self.player.setMedia(QMediaContent(pathUrl))  # 选取视频文件
+        self.player.play()  # 播放视频
+        # 视频处理列表需要加载，一个视频对应一个处理文件
+        
+    def waititem_selected(self, index):
+        print(str(index) + "wait被选择了")
+        curItem = self.csv_df[self.csv_df["index"] == index].iloc[0]
+        # 视频加载
+        pathUrl = QtCore.QUrl("file://" + curItem["filepath"])
+        print(pathUrl)
+        self.player.setMedia(QMediaContent(pathUrl))  # 选取视频文件
+        self.player.play()  # 播放视频
 
     # 屏幕截图的功能，暂未使用
     def castVideo(self):
@@ -401,7 +418,9 @@ class Ui_MainWindow(object):
                 self.player.pause()
 
     def openVideoFile(self):
-        self.player.setMedia(QMediaContent(QFileDialog.getOpenFileUrl()[0]))  # 选取视频文件
+        temp = QFileDialog.getOpenFileUrl()[0]
+        print(temp)
+        self.player.setMedia(QMediaContent(temp))  # 选取视频文件
         self.player.play()  # 播放视频
         print("availableMetaData: " + str(self.player.availableMetaData()))
 

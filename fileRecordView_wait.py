@@ -1,6 +1,7 @@
 import os.path
 
-from PyQt5.QtGui import QPixmap, QImage, QTextOption, QColor
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtGui import QPixmap, QImage, QTextOption, QColor, QMouseEvent
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QTextEdit, QFrame, QProgressBar
 from PyQt5 import QtCore
 import cv2
@@ -9,6 +10,8 @@ import cv2
 # 填充在wait列表里面的widget
 # 首先是一个图片显示视频的某一帧，然后是序号，然后是视频的文件名和文件路径，下面需要跟上一个进度条
 class fileRecordView_wait(QWidget):
+    itemSelected = pyqtSignal(int)
+    
     def __init__(self, df):
         super(fileRecordView_wait, self).__init__()
         self.setGeometry(QtCore.QRect(0, 0, 300, 80))
@@ -43,7 +46,7 @@ class fileRecordView_wait(QWidget):
         self.label_filename.setGeometry(QtCore.QRect(90, 3, 210, 20))
         self.label_path.setGeometry(13, 60, 40, 18)
         self.label_filepath.setGeometry(QtCore.QRect(50, 60, 245, 18))
-        self.label_filename.setText(self.filename)
+        self.label_filename.setText(str(self.index) + "----" + self.filename)
         self.label_path.setText("path:")
         self.label_filepath.setText(self.filepath)
         
@@ -57,6 +60,9 @@ class fileRecordView_wait(QWidget):
         self.progress_wait.setGeometry(QtCore.QRect(5, 5, 180, 30))
         self.progress_wait.setObjectName("progress_wait")
         QtCore.QMetaObject.connectSlotsByName(self)
+            
+    def mouseReleaseEvent(self, a0: QMouseEvent) -> None:
+        self.itemSelected.emit(self.index)
 
     def setAction(self):
         pass
