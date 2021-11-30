@@ -18,6 +18,7 @@ from PyQt5.QtGui import QGuiApplication, QIcon
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtWidgets import QFileDialog, QProgressBar, QListWidgetItem, QLabel, QMessageBox
 
+from fileRecordView_finish import fileRecordView_finish
 from videoSlider import videoSlider
 
 
@@ -90,9 +91,13 @@ class Ui_MainWindow(object):
         # 根据不同的选项来从dataframe加载文件
         self.page_finish = QtWidgets.QWidget(self.stackedWidget_left_right)
         self.page_finish.setObjectName("page_finish")
+        self.listWidget_page_finish = QtWidgets.QListWidget(self.page_finish)
+        self.load_page_finish()
         self.stackedWidget_left_right.addWidget(self.page_finish)
         self.page_wait = QtWidgets.QWidget(self.stackedWidget_left_right)
         self.page_wait.setObjectName("page_wait")
+        self.listWidget_page_wait = QtWidgets.QListWidget(self.page_wait)
+        self.load_page_wait()
         self.stackedWidget_left_right.addWidget(self.page_wait)
         # 上传文件，主要是将扫描的文件添加到dataframe中，将相应的列表项填好，并且重新加载上两个页面
         self.page_upload = QtWidgets.QWidget(self.stackedWidget_left_right)
@@ -302,6 +307,19 @@ class Ui_MainWindow(object):
         self.checkBox_xiyan.setChecked(self.dict_setting["xiyan"])
         self.checkBox_baoli.setChecked(self.dict_setting["baoli"])
         self.checkBox_xuexing.setChecked(self.dict_setting["xuexing"])
+        
+    # 加载处理完毕视频列表界面
+    def load_page_finish(self):
+        print("开始加载处理完毕的视频列表界面。。。")
+        df_finish = self.csv_df[self.csv_df["status"]==1]
+        for finish_item in df_finish:
+            item = QListWidgetItem(self.listWidget_page_finish)
+            item_finish = fileRecordView_finish(finish_item)
+        print("处理完毕视频列表界面加载完毕。。。")
+    
+    # 加载正在处理视频列表界面
+    def load_page_wait(self):
+        pass
 
     # 屏幕截图的功能，暂未使用
     def castVideo(self):

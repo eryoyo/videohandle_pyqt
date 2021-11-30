@@ -1,7 +1,7 @@
 # 文件列表里面的每一项
 # 使用：
 # from fileRecord import fileRecord
-# a = fileRecord(0, "filePath", 0, 0, "xiyan", 0, "baoli", 0, "xuexing")
+# a = fileRecord(0, "/Users/chenjialin/Downloads/smoke.mp4", 0, 0, "xiyan", 0, "baoli", 0, "xuexing")
 # a.keys()
 # import pandas as pd
 # b = pd.DataFrame(columns=a.keys())
