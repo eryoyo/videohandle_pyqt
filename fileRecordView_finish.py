@@ -1,7 +1,9 @@
 import os.path
 
-from PyQt5.QtGui import QPixmap, QImage, QTextOption, QColor
-from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QTextEdit, QFrame, QCheckBox, QHBoxLayout, QScrollArea
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtGui import QPixmap, QImage, QTextOption, QColor, QMouseEvent
+from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QTextEdit, QFrame, QCheckBox, QHBoxLayout, QScrollArea, \
+    QListWidgetItem
 from PyQt5 import QtCore
 import cv2
 
@@ -10,6 +12,8 @@ import cv2
 # 首先是一个图片，显示视频的某一帧，然后是视频名和视频路径，下面跟上一个复选框，重要的点是根据是否有异常需要显示出不同的颜色
 # "index", "filepath", "status", "xiyan", "xiyan_path", "baoli", "baoli_path", "xuexing", "xuexing_path"
 class fileRecordView_finish(QWidget):
+    itemSelected = pyqtSignal(int)
+    
     def __init__(self, df):
         super(fileRecordView_finish, self).__init__()
         self.setGeometry(QtCore.QRect(0, 0, 300, 80))
@@ -44,7 +48,7 @@ class fileRecordView_finish(QWidget):
         self.label_filename.setGeometry(QtCore.QRect(90, 3, 210, 20))
         self.label_path.setGeometry(13, 60, 40, 18)
         self.label_filepath.setGeometry(QtCore.QRect(50, 60, 245, 18))
-        self.label_filename.setText(self.filename)
+        self.label_filename.setText(str(self.index) + "----" + self.filename)
         self.label_path.setText("path:")
         self.label_filepath.setText(self.filepath)
         
@@ -80,6 +84,9 @@ class fileRecordView_finish(QWidget):
             if self.df.loc[check] == 2:
                 checkbox.setChecked(True)
             self.HLayout.addWidget(checkbox)
+            
+    def mouseReleaseEvent(self, a0: QMouseEvent) -> None:
+        self.itemSelected.emit(self.index)
 
     def setAction(self):
         pass

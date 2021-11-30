@@ -298,6 +298,8 @@ class Ui_MainWindow(object):
             lambda: self.checkStateChange("baoli", self.checkBox_baoli.isChecked()))
         self.checkBox_xuexing.stateChanged.connect(
             lambda: self.checkStateChange("xuexing", self.checkBox_xuexing.isChecked()))
+        
+        # 文件列表槽函数
 
     # 加载设置界面
     def load_setting(self):
@@ -317,6 +319,7 @@ class Ui_MainWindow(object):
             item = QListWidgetItem(self.listWidget_page_finish)
             item.setSizeHint(QSize(300, 80))
             item_finish = fileRecordView_finish(df_finish.iloc[i])
+            item_finish.itemSelected.connect(self.finishitem_selected)
             self.listWidget_page_finish.setItemWidget(item, item_finish)
         print("处理完毕视频列表界面加载完毕。。。")
 
@@ -331,6 +334,9 @@ class Ui_MainWindow(object):
             item_wait = fileRecordView_wait(df_wait.iloc[i])
             self.listWidget_page_wait.setItemWidget(item, item_wait)
         print("等待处理视频列表界面加载完毕。。。")
+        
+    def finishitem_selected(self, index):
+        print(str(index) + "被选择了")
 
     # 屏幕截图的功能，暂未使用
     def castVideo(self):
