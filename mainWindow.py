@@ -222,24 +222,10 @@ class Ui_MainWindow(object):
         self.listWidget_right_down_left = QtWidgets.QListWidget(self.layoutWidget1)
         self.listWidget_right_down_left.setMaximumSize(QtCore.QSize(88, 16777215))
         self.listWidget_right_down_left.setObjectName("listWidget_right_down_left")
-        for i in range(20):
-            item = QListWidgetItem(self.icon, str('选 项 %s' % i), self.listWidget_right_down_left)
-            # 设置item的默认宽高(这里只有高度比较有用)
-            item.setSizeHint(QSize(86, 60))
-            # 文字居中
-            item.setTextAlignment(Qt.AlignCenter)
-
         self.horizontalLayout_right_down.addWidget(self.listWidget_right_down_left)
+        
         self.stackedWidget_right_down_right = QtWidgets.QStackedWidget(self.layoutWidget1)
         self.stackedWidget_right_down_right.setObjectName("stackedWidget_right_down_right")
-        for i in range(20):
-            label = QLabel('我是页面 %d' % i, self.stackedWidget_left_right)
-            label.setAlignment(Qt.AlignCenter)
-            # 设置label的背景颜色(这里随机)
-            # 这里加了一个margin边距(方便区分QStackedWidget和QLabel的颜色)
-            label.setStyleSheet('background: rgb(%d, %d, %d);margin: 0px;' % (
-                randint(0, 255), randint(0, 255), randint(0, 255)))
-            self.stackedWidget_right_down_right.addWidget(label)
         self.horizontalLayout_right_down.addWidget(self.stackedWidget_right_down_right)
 
         # 后期补充菜单栏和状态栏，不紧迫
@@ -345,6 +331,9 @@ class Ui_MainWindow(object):
         self.player.setMedia(QMediaContent(pathUrl))  # 选取视频文件
         self.player.play()  # 播放视频
         # 视频处理列表需要加载，一个视频对应一个处理文件
+        eventFilePath = curItem["process_path"]
+        csv_event = pd.read_csv(eventFilePath, index_col=0)
+        
         
     def waititem_selected(self, index):
         print(str(index) + "wait被选择了")
