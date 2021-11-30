@@ -19,6 +19,7 @@ from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtWidgets import QFileDialog, QProgressBar, QListWidgetItem, QLabel, QMessageBox
 
 from fileRecordView_finish import fileRecordView_finish
+from fileRecordView_wait import fileRecordView_wait
 from videoSlider import videoSlider
 
 
@@ -88,15 +89,18 @@ class Ui_MainWindow(object):
         # 页面左侧的四个单独的页面
         self.stackedWidget_left_right = QtWidgets.QStackedWidget(self.layoutWidget)
         self.stackedWidget_left_right.setObjectName("stackedWidget_left_right")
+        # self.stackedWidget_left_right.setStyleSheet("background: black")
         # 根据不同的选项来从dataframe加载文件
         self.page_finish = QtWidgets.QWidget(self.stackedWidget_left_right)
         self.page_finish.setObjectName("page_finish")
         self.listWidget_page_finish = QtWidgets.QListWidget(self.page_finish)
+        self.listWidget_page_finish.setGeometry(QtCore.QRect(0, 0, 303, 881))
         self.load_page_finish()
         self.stackedWidget_left_right.addWidget(self.page_finish)
         self.page_wait = QtWidgets.QWidget(self.stackedWidget_left_right)
         self.page_wait.setObjectName("page_wait")
         self.listWidget_page_wait = QtWidgets.QListWidget(self.page_wait)
+        self.listWidget_page_wait.setGeometry(QtCore.QRect(0, 0, 303, 881))
         self.load_page_wait()
         self.stackedWidget_left_right.addWidget(self.page_wait)
         # 上传文件，主要是将扫描的文件添加到dataframe中，将相应的列表项填好，并且重新加载上两个页面
@@ -228,12 +232,6 @@ class Ui_MainWindow(object):
         self.horizontalLayout_right_down.addWidget(self.listWidget_right_down_left)
         self.stackedWidget_right_down_right = QtWidgets.QStackedWidget(self.layoutWidget1)
         self.stackedWidget_right_down_right.setObjectName("stackedWidget_right_down_right")
-        # self.page_3 = QtWidgets.QWidget()
-        # self.page_3.setObjectName("page_3")
-        # self.stackedWidget_right_down_right.addWidget(self.page_3)
-        # self.page_4 = QtWidgets.QWidget()
-        # self.page_4.setObjectName("page_4")
-        # self.stackedWidget_right_down_right.addWidget(self.page_4)
         for i in range(20):
             label = QLabel('我是页面 %d' % i, self.stackedWidget_left_right)
             label.setAlignment(Qt.AlignCenter)
@@ -317,13 +315,22 @@ class Ui_MainWindow(object):
         df_finish = self.csv_df[self.csv_df["status"] == 1]
         for i in range(len(df_finish)):
             item = QListWidgetItem(self.listWidget_page_finish)
-            temp = df_finish.iloc[i]
+            item.setSizeHint(QSize(300, 80))
             item_finish = fileRecordView_finish(df_finish.iloc[i])
+            self.listWidget_page_finish.setItemWidget(item, item_finish)
         print("处理完毕视频列表界面加载完毕。。。")
 
     # 加载正在处理视频列表界面
     def load_page_wait(self):
-        pass
+        print("开始加载等待处理的视频列表界面。。。")
+        df_wait = self.csv_df[self.csv_df["status"] == 0]
+        # print(df_wait)
+        for i in range(len(df_wait)):
+            item = QListWidgetItem(self.listWidget_page_wait)
+            item.setSizeHint(QSize(300, 80))
+            item_wait = fileRecordView_wait(df_wait.iloc[i])
+            self.listWidget_page_wait.setItemWidget(item, item_wait)
+        print("等待处理视频列表界面加载完毕。。。")
 
     # 屏幕截图的功能，暂未使用
     def castVideo(self):

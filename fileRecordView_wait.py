@@ -55,10 +55,8 @@ class fileRecordView_wait(QWidget):
         self.progress_wait = QProgressBar(self.layoutWidget)
         self.progress_wait.setValue(25)
         self.progress_wait.setGeometry(QtCore.QRect(5, 5, 180, 30))
-        self.progress_wait.setStyleSheet("border: 2px solid #bbbbee; min-height: 25px; max-height: 25px; "
-                                         "border-radius: 6px; text-align: center; ::chunk:'border-radius: 6px; "
-                                         "background-color: #ccccee; width: 7px'") 
         self.progress_wait.setObjectName("progress_wait")
+        QtCore.QMetaObject.connectSlotsByName(self)
 
     def setAction(self):
         pass

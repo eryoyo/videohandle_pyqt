@@ -69,13 +69,14 @@ class fileRecordView_finish(QWidget):
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         
     def init_checkbox(self):
-        self.checklists = ["xiyan", "baoli", "xuexing", "baoli", "xuexing", "baoli", "xuexing"]
-        self.checklists_name = ["吸烟", "暴力", "血腥", "暴力", "血腥", "暴力", "血腥"]
+        self.checklists = ["xiyan", "baoli", "xuexing"]
+        self.checklists_name = ["吸烟", "暴力", "血腥"]
         for i, check in enumerate(self.checklists):
             if self.df.loc[check] == 0:
                 continue
             checkbox = QCheckBox(self.scrollAreaWidgetContents)
             checkbox.setText(self.checklists_name[i])
+            checkbox.setDisabled(True)
             if self.df.loc[check] == 2:
                 checkbox.setChecked(True)
             self.HLayout.addWidget(checkbox)
