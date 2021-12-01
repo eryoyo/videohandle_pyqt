@@ -18,6 +18,7 @@ from PyQt5.QtGui import QGuiApplication, QIcon
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtWidgets import QFileDialog, QProgressBar, QListWidgetItem, QLabel, QMessageBox
 
+from fileEventDetailView import fileEventDetailView
 from fileRecordView_finish import fileRecordView_finish
 from fileRecordView_wait import fileRecordView_wait
 from videoSlider import videoSlider
@@ -38,6 +39,9 @@ class Ui_MainWindow(object):
         self.dict_setting = {}
         # 文件列表
         self.csv_df = pd.read_csv("./file.csv", index_col=0)
+        # 事件列表
+        self.list_event_py = ["xiyan", "baoli", "xuexing"]
+        self.list_event = ["吸烟", "暴力", "血腥"]
 
     def setupUi(self, MainWindow):
         # 最外围的主窗口，不要改动
@@ -127,15 +131,6 @@ class Ui_MainWindow(object):
         self.checkBox_xuexing.setText("血腥")
         self.load_setting()
         self.stackedWidget_left_right.addWidget(self.page_setting)
-
-        for i in range(len(self.choice)):
-            label = QLabel('我是页面 %d' % i, self.stackedWidget_left_right)
-            label.setAlignment(Qt.AlignCenter)
-            # 设置label的背景颜色(这里随机)
-            # 这里加了一个margin边距(方便区分QStackedWidget和QLabel的颜色)
-            label.setStyleSheet('background: rgb(%d, %d, %d);margin: 0px;' % (
-                randint(0, 255), randint(0, 255), randint(0, 255)))
-            self.stackedWidget_left_right.addWidget(label)
         self.horizontalLayout_left.addWidget(self.stackedWidget_left_right)
 
         # 右侧窗口
@@ -219,13 +214,16 @@ class Ui_MainWindow(object):
         self.horizontalLayout_right_down = QtWidgets.QHBoxLayout(self.layoutWidget1)
         self.horizontalLayout_right_down.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_right_down.setObjectName("horizontalLayout_right_down")
+        
         self.listWidget_right_down_left = QtWidgets.QListWidget(self.layoutWidget1)
         self.listWidget_right_down_left.setMaximumSize(QtCore.QSize(88, 16777215))
         self.listWidget_right_down_left.setObjectName("listWidget_right_down_left")
-        self.horizontalLayout_right_down.addWidget(self.listWidget_right_down_left)
         
         self.stackedWidget_right_down_right = QtWidgets.QStackedWidget(self.layoutWidget1)
         self.stackedWidget_right_down_right.setObjectName("stackedWidget_right_down_right")
+
+        self.load_right_down()
+        self.horizontalLayout_right_down.addWidget(self.listWidget_right_down_left)
         self.horizontalLayout_right_down.addWidget(self.stackedWidget_right_down_right)
 
         # 后期补充菜单栏和状态栏，不紧迫
@@ -333,8 +331,7 @@ class Ui_MainWindow(object):
         # 视频处理列表需要加载，一个视频对应一个处理文件
         eventFilePath = curItem["process_path"]
         csv_event = pd.read_csv(eventFilePath, index_col=0)
-        
-        
+            
     def waititem_selected(self, index):
         print(str(index) + "wait被选择了")
         curItem = self.csv_df[self.csv_df["index"] == index].iloc[0]
@@ -343,7 +340,58 @@ class Ui_MainWindow(object):
         print(pathUrl)
         self.player.setMedia(QMediaContent(pathUrl))  # 选取视频文件
         self.player.play()  # 播放视频
-
+        
+    def load_right_down(self, index=-1):
+        if index == -1:
+            finish_df = self.csv_df[self.csv_df["status"] == 1]
+            if len(finish_df) != 0:
+                loadItem = finish_df.iloc[0]
+                self.load_right_down_Byitem(loadItem)
+        else:
+            loadItem = self.csv_df[self.csv_df["index"] == index].iloc[0]
+            self.load_right_down_Byitem(loadItem)
+            
+    def load_right_down_Byitem(self, loadItem):
+        # 加载right_down_left
+        list_happen = []
+        for i, event in enumerate(self.list_event_py):
+            if loadItem[event] == 2:
+                list_happen.append(event)
+                # 添加菜单栏
+                item = QListWidgetItem(self.icon, self.list_event[i], self.listWidget_right_down_left)
+                # 设置item的默认宽高(这里只有高度比较有用)
+                item.setSizeHint(QSize(86, 60))
+                # 文字居中
+                item.setTextAlignment(Qt.AlignCenter)
+        
+        # 加载right_down_right
+        process_path = loadItem["process_path"]
+        self.load_right_down_Byfile(process_path, list_happen, loadItem["filepath"])
+    
+    def load_right_down_Byfile(self, process_path, list_happen, filepath):
+        event_df = pd.read_csv(process_path)
+        for event in list_happen:
+            print("开始处理：", event)
+            event_df_cur = event_df[event_df["type"] == event]
+            page_right_down_right = QtWidgets.QWidget(self.stackedWidget_right_down_right)
+            page_right_down_right.setObjectName("page_right_down_right")
+            listWidget_page_right_down_right = QtWidgets.QListWidget(page_right_down_right)
+            listWidget_page_right_down_right.setGeometry(QtCore.QRect(0, 0, 703, 328))
+            self.load_page_right_down_right(event_df_cur, listWidget_page_right_down_right, filepath)
+            self.stackedWidget_right_down_right.addWidget(page_right_down_right)
+            print("完成处理：", event)
+        
+    def load_page_right_down_right(self, event_df_cur, listWidget_page_right_down_right, filepath):
+        for i in range(len(event_df_cur)):
+            item = QListWidgetItem(listWidget_page_right_down_right)
+            item.setSizeHint(QSize(700, 60))
+            item_finish = fileEventDetailView(event_df_cur.iloc[i], filepath)
+            item_finish.btn_play_clicked.connect(self.play_item)
+            listWidget_page_right_down_right.setItemWidget(item, item_finish)
+            
+    def play_item(self, start):
+        self.player.setPosition(start)
+        
     # 屏幕截图的功能，暂未使用
     def castVideo(self):
         screen = QGuiApplication.primaryScreen()
