@@ -1,7 +1,7 @@
 import cv2
 from PyQt5.QtCore import QRect, Qt, QSize, pyqtSignal
 from PyQt5.QtGui import QImage, QPixmap, QIcon
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QGraphicsDropShadowEffect
 
 
 # 这个是在事件列表区域里面的详情列表里面的小组件
@@ -11,6 +11,7 @@ class fileEventDetailView(QWidget):
     def __init__(self, df, filepath):
         super(fileEventDetailView, self).__init__()
         self.setGeometry(QRect(0, 0, 700, 60))
+        # self.setStyleSheet("background: white")
         
         self.df = df
         self.filepath = filepath
@@ -24,7 +25,7 @@ class fileEventDetailView(QWidget):
         self.label_image = QLabel(self)
         self.label_image.setGeometry(QRect(10, 5, 80, 50))
         cap = cv2.VideoCapture(self.filepath)
-        cap.set(cv2.CAP_PROP_POS_FRAMES, self.start)
+        cap.set(cv2.CAP_PROP_POS_FRAMES, self.end)
         _, self.frame = cap.read()
         # 将图片转换为QImage
         self.frame_qimage = QImage(self.frame[:], self.frame.shape[1], self.frame.shape[0], self.frame.shape[1] * 3,
@@ -36,31 +37,37 @@ class fileEventDetailView(QWidget):
         # 中间信息展示
         self.label_start = QLabel(self)
         self.label_start.setGeometry(QRect(120, 20, 200, 20))
-        self.label_start.setStyleSheet("background: green")
+        # self.label_start.setStyleSheet("background: green")
         self.label_start.setText("起始帧位置：" + str(self.start))
         self.label_start.setAlignment(Qt.AlignCenter)
         self.label_end = QLabel(self)
         self.label_end.setGeometry(QRect(370, 20, 200, 20))
-        self.label_end.setStyleSheet("background: green")
+        # self.label_end.setStyleSheet("background: green")
         self.label_end.setText("结束帧位置：" + str(self.end))
         self.label_end.setAlignment(Qt.AlignCenter)
         
         # 查看的按钮
         self.btn_play = QPushButton(self)
-        self.btn_play.setGeometry(QRect(600, 10, 40, 40))
+        self.btn_play.setGeometry(QRect(600, 5, 50, 50))
         icon = QIcon()
-        icon.addPixmap(QPixmap("img/Icon.png"), QIcon.Normal, QIcon.Off)
+        icon.addPixmap(QPixmap("img/play.png"), QIcon.Normal, QIcon.Off)
         self.btn_play.setIcon(icon)
-        self.btn_play.setIconSize(QSize(40, 40))
+        self.btn_play.setIconSize(QSize(35, 30))
+        self.setToolTip("跳转播放")
+        self.effect_shadow = QGraphicsDropShadowEffect(self)
+        self.effect_shadow.setOffset(0, 0)  # 偏移
+        self.effect_shadow.setBlurRadius(30)  # 阴影半径
+        self.effect_shadow.setColor(Qt.gray)  # 阴影颜色
+        self.btn_play.setGraphicsEffect(self.effect_shadow)  # 将设置套用到button窗口中
         
         self.setAction()
         
     def eventPlay(self):
-        self.btn_play.emit(self.start)
+        self.btn_play_clicked.emit(self.start)
         
     def setAction(self):
         # 按钮的槽函数
-        self.btn_play.click().connect(self.eventPlay)
+        self.btn_play.clicked.connect(self.eventPlay)
 
 
 from PyQt5.QtWidgets import QApplication
@@ -71,7 +78,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     csv_df = pd.read_csv("./result/smoke_1638263955553461.csv", index_col=0)
-    print(csv_df)
+    # print(csv_df)
 
     # 显示窗口
     win = fileEventDetailView(csv_df.iloc[0], "/Users/chenjialin/Downloads/smoke.mp4")
