@@ -30,7 +30,7 @@ class threadDemo(QThread):
             rn = randint(150, 250)
             i += rn
             if i >= self.frame_num:
-                i = self.frame_num - 1
+                i = int(self.frame_num - 1)
             self.valueChanged.emit(i)
             print(self.filepath, '当前处理到value', i)
             QThread.sleep(1)
