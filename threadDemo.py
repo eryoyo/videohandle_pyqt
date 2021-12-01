@@ -6,10 +6,6 @@ import cv2
 
 # 模拟视频处理的子线程，传入参数包括当前处理视频的Series，每一秒之后就会传出一个信号表示当前的帧数
 # index,filepath,status,process_path,xiyan,baoli,xuexing
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QProgressBar, QPushButton, QApplication
-import pandas as pd
-
-
 class threadDemo(QThread):
     valueChanged = pyqtSignal(int)  # 值变化信号
 
@@ -41,6 +37,10 @@ class threadDemo(QThread):
         # 最后需要将当前视频文件中的检测事件保存起来
         print(self.filepath, "视频处理结束。。。")
         
+
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QProgressBar, QPushButton, QApplication
+import pandas as pd
+
 
 class Window(QWidget):
 
