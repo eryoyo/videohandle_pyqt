@@ -127,6 +127,8 @@ class Ui_MainWindow(object):
             checkBox.setObjectName("checkBox" + self.list_event_py[i])
             checkBox.setText(self.list_event[i])
             checkBox.setChecked(self.dict_setting[event_py])
+            # 设置连接的槽函数
+            checkBox.stateChanged.connect(lambda: self.checkStateChange(event_py, checkBox.isChecked()))
             self.gridlayout_setting.addWidget(checkBox)
         self.page_setting.setLayout(self.gridlayout_setting)
         self.stackedWidget_left_right.addWidget(self.page_setting)
@@ -275,12 +277,7 @@ class Ui_MainWindow(object):
         self.listWidget_right_down_left.currentRowChanged.connect(self.stackedWidget_right_down_right.setCurrentIndex)
 
         # 设置页面的槽函数
-        self.checkBox_xiyan.stateChanged.connect(
-            lambda: self.checkStateChange("xiyan", self.checkBox_xiyan.isChecked()))
-        self.checkBox_baoli.stateChanged.connect(
-            lambda: self.checkStateChange("baoli", self.checkBox_baoli.isChecked()))
-        self.checkBox_xuexing.stateChanged.connect(
-            lambda: self.checkStateChange("xuexing", self.checkBox_xuexing.isChecked()))
+        # 在添加checkbox的时候就添加了槽函数
         
         # 文件列表槽函数
 
