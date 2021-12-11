@@ -13,7 +13,7 @@ import cv2
 # "index", "filepath", "status", "xiyan", "xiyan_path", "baoli", "baoli_path", "xuexing", "xuexing_path"
 class fileRecordView_finish(QWidget):
     itemSelected = pyqtSignal(int)
-    
+
     def __init__(self, df):
         super(fileRecordView_finish, self).__init__()
         self.setGeometry(QtCore.QRect(0, 0, 300, 80))
@@ -51,7 +51,7 @@ class fileRecordView_finish(QWidget):
         self.label_filename.setText(str(self.index) + "----" + self.filename)
         self.label_path.setText("path:")
         self.label_filepath.setText(self.filepath)
-        
+
         # 显示是否检测出相关问题的复选框
         self.layoutWidget = QWidget(self)
         self.layoutWidget.setGeometry(QtCore.QRect(90, 20, 200, 38))
@@ -71,10 +71,13 @@ class fileRecordView_finish(QWidget):
         self.HLayout.setObjectName("HLayout")
         self.init_checkbox()
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-        
+
     def init_checkbox(self):
-        self.checklists = ["xiyan", "baoli", "xuexing"]
-        self.checklists_name = ["吸烟", "暴力", "血腥"]
+        self.checklists = ["taibiao_1", "taibiao_2", "taibiao_3", "taibiao_4", "taibiao_5", "taibiao_6",
+                           "taibiao_7", "taibiao_8", "taibiao_9", "taibiao_10", "taibiao_11", "taibiao_12",
+                           "taibiao_13", "taibiao_14", "taibiao_15", "taibiao_16", "ttv", "voa", "xtr", "smoke"]
+        self.checklists_name = ["台标1", "台标2", "台标3", "台标4", "台标5", "台标6", "台标7", "台标8", "台标9", "台标10", "台标11",
+                                "台标12", "台标13", "台标14", "台标15", "台标16", "ttv", "voa", "xtr", "吸烟"]
         for i, check in enumerate(self.checklists):
             if self.df.loc[check] == 0:
                 continue
@@ -84,7 +87,7 @@ class fileRecordView_finish(QWidget):
             if self.df.loc[check] == 2:
                 checkbox.setChecked(True)
             self.HLayout.addWidget(checkbox)
-            
+
     def mouseReleaseEvent(self, a0: QMouseEvent) -> None:
         self.itemSelected.emit(self.index)
 

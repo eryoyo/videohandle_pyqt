@@ -448,11 +448,12 @@ class Ui_MainWindow(object):
                 self.player.pause()
 
     def openVideoFile(self):
-        temp = QFileDialog.getOpenFileUrl()[0]
-        print(temp)
-        self.player.setMedia(QMediaContent(temp))  # 选取视频文件
-        self.player.play()  # 播放视频
-        print("availableMetaData: " + str(self.player.availableMetaData()))
+        # temp = QFileDialog.getOpenFileUrl()[0]
+        # print(temp)
+        # self.player.setMedia(QMediaContent(temp))  # 选取视频文件
+        # self.player.play()  # 播放视频
+        # print("availableMetaData: " + str(self.player.availableMetaData()))
+        pass
 
     # 控制视频播放与否的按钮
     def changeVideoStatus(self):
