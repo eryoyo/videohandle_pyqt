@@ -16,7 +16,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets, QtMultimediaWidgets
 from PyQt5.QtCore import QDateTime, QTimer, QSize, Qt
 from PyQt5.QtGui import QGuiApplication, QIcon
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
-from PyQt5.QtWidgets import QFileDialog, QProgressBar, QListWidgetItem, QLabel, QMessageBox
+from PyQt5.QtWidgets import QFileDialog, QProgressBar, QListWidgetItem, QLabel, QMessageBox, QGridLayout, QCheckBox
 
 from fileEventDetailView import fileEventDetailView
 from fileRecordView_finish import fileRecordView_finish
@@ -40,8 +40,11 @@ class Ui_MainWindow(object):
         # 文件列表
         self.csv_df = pd.read_csv("./file.csv", index_col=0)
         # 事件列表
-        self.list_event_py = ["xiyan", "baoli", "xuexing"]
-        self.list_event = ["吸烟", "暴力", "血腥"]
+        self.list_event_py = ["taibiao_1", "taibiao_2", "taibiao_3", "taibiao_4", "taibiao_5", "taibiao_6", 
+                              "taibiao_7", "taibiao_8", "taibiao_9", "taibiao_10", "taibiao_11", "taibiao_12", 
+                              "taibiao_13", "taibiao_14", "taibiao_15", "taibiao_16", "ttv", "voa", "xtr", "smoke"]
+        self.list_event = ["台标1", "台标2", "台标3", "台标4", "台标5", "台标6", "台标7", "台标8", "台标9", "台标10", "台标11", 
+                           "台标12", "台标13", "台标14", "台标15", "台标16", "ttv", "voa", "xtr", "吸烟"]
 
     def setupUi(self, MainWindow):
         # 最外围的主窗口，不要改动
@@ -115,21 +118,17 @@ class Ui_MainWindow(object):
         self.btn_open.setObjectName("btn_open")
         self.stackedWidget_left_right.addWidget(self.page_upload)
         # 设置页面，里面需要有一个多选框列表
+        self.load_setting()
         self.page_setting = QtWidgets.QWidget(self.stackedWidget_left_right)
         self.page_setting.setObjectName("page_setting")
-        self.checkBox_xiyan = QtWidgets.QCheckBox(self.page_setting)
-        self.checkBox_xiyan.setObjectName("checkBox_xiyan")
-        self.checkBox_xiyan.setGeometry(25, 50, 80, 60)
-        self.checkBox_xiyan.setText("吸烟")
-        self.checkBox_baoli = QtWidgets.QCheckBox(self.page_setting)
-        self.checkBox_baoli.setObjectName("checkBox_baoli")
-        self.checkBox_baoli.setGeometry(25, 150, 80, 60)
-        self.checkBox_baoli.setText("暴力")
-        self.checkBox_xuexing = QtWidgets.QCheckBox(self.page_setting)
-        self.checkBox_xuexing.setObjectName("checkBox_xuexing")
-        self.checkBox_xuexing.setGeometry(25, 250, 80, 60)
-        self.checkBox_xuexing.setText("血腥")
-        self.load_setting()
+        self.gridlayout_setting = QGridLayout()
+        for i, event_py in enumerate(self.list_event_py):
+            checkBox = QCheckBox()
+            checkBox.setObjectName("checkBox" + self.list_event_py[i])
+            checkBox.setText(self.list_event[i])
+            checkBox.setChecked(self.dict_setting[event_py])
+            self.gridlayout_setting.addWidget(checkBox)
+        self.page_setting.setLayout(self.gridlayout_setting)
         self.stackedWidget_left_right.addWidget(self.page_setting)
         self.horizontalLayout_left.addWidget(self.stackedWidget_left_right)
 
@@ -291,9 +290,6 @@ class Ui_MainWindow(object):
         with open("./config.json", 'r') as setting_file:
             self.dict_setting = json.load(setting_file)
             print(self.dict_setting)
-        self.checkBox_xiyan.setChecked(self.dict_setting["xiyan"])
-        self.checkBox_baoli.setChecked(self.dict_setting["baoli"])
-        self.checkBox_xuexing.setChecked(self.dict_setting["xuexing"])
 
     # 加载处理完毕视频列表界面
     def load_page_finish(self):

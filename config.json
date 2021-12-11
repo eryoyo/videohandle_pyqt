@@ -1,1 +1,25 @@
-{"xiyan": true, "baoli": false, "xuexing": false}
+{
+    "taibiao_1": true,
+    "taibiao_2": true,
+    "taibiao_3": true,
+    "taibiao_4": true,
+    "taibiao_5": true,
+    "taibiao_6": true,
+    "taibiao_7": true,
+    "taibiao_8": true,
+    "taibiao_9": true,
+    "taibiao_10": true,
+    "taibiao_11": true,
+    "taibiao_12": true,
+    "taibiao_13": true,
+    "taibiao_14": true,
+    "taibiao_15": true,
+    "taibiao_16": true,
+    "ttv": false,
+    "voa": true,
+    "xtr": true,
+    "zhuangjia": true,
+    "daoju": true,
+    "qiangzhi": true,
+    "smoke": true
+}
