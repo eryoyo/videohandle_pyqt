@@ -21,6 +21,7 @@ from PyQt5.QtWidgets import QFileDialog, QProgressBar, QListWidgetItem, QLabel, 
 from fileEventDetailView import fileEventDetailView
 from fileRecordView_finish import fileRecordView_finish
 from fileRecordView_wait import fileRecordView_wait
+from settingView import settingView
 from videoSlider import videoSlider
 
 
@@ -118,19 +119,11 @@ class Ui_MainWindow(object):
         self.btn_open.setObjectName("btn_open")
         self.stackedWidget_left_right.addWidget(self.page_upload)
         # 设置页面，里面需要有一个多选框列表
-        self.load_setting()
         self.page_setting = QtWidgets.QWidget(self.stackedWidget_left_right)
         self.page_setting.setObjectName("page_setting")
-        self.gridlayout_setting = QGridLayout()
-        for i, event_py in enumerate(self.list_event_py):
-            checkBox = QCheckBox()
-            checkBox.setObjectName("checkBox" + self.list_event_py[i])
-            checkBox.setText(self.list_event[i])
-            checkBox.setChecked(self.dict_setting[event_py])
-            # 设置连接的槽函数
-            checkBox.stateChanged.connect(lambda: self.checkStateChange(event_py, checkBox.isChecked()))
-            self.gridlayout_setting.addWidget(checkBox)
-        self.page_setting.setLayout(self.gridlayout_setting)
+        self.listWidget_page_setting = QtWidgets.QListWidget(self.page_setting)
+        self.listWidget_page_setting.setGeometry(QtCore.QRect(0, 0, 303, 881))
+        self.load_setting()
         self.stackedWidget_left_right.addWidget(self.page_setting)
         self.horizontalLayout_left.addWidget(self.stackedWidget_left_right)
 
@@ -287,6 +280,13 @@ class Ui_MainWindow(object):
         with open("./config.json", 'r') as setting_file:
             self.dict_setting = json.load(setting_file)
             print(self.dict_setting)
+        for i in range(len(self.list_event_py)):
+            item = QListWidgetItem(self.listWidget_page_setting)
+            item.setSizeHint(QSize(300, 40))
+            item_setting = settingView(self.list_event_py[i], self.dict_setting[self.list_event_py[i]], self.list_event[i])
+            item_setting.stateChange.connect(self.checkStateChange)
+            self.listWidget_page_setting.setItemWidget(item, item_setting)
+        print("设置界面加载完毕")
 
     # 加载处理完毕视频列表界面
     def load_page_finish(self):
@@ -467,8 +467,9 @@ class Ui_MainWindow(object):
             self.VIDEO_STATUS = True
 
     # 设置选项改变
-    def checkStateChange(self, choice, state):
-        self.dict_setting[choice] = state
+    def checkStateChange(self, choice):
+        print(choice)
+        self.dict_setting[choice] = False if self.dict_setting[choice] else True
         with open("./config.json", "w") as file_setting:
             json.dump(self.dict_setting, file_setting)
             print("设置更新完成")
