@@ -10,6 +10,8 @@
 ############################ wait to do #############################
 import json
 from random import randint
+
+import cv2
 import pandas as pd
 
 from PyQt5 import QtCore, QtGui, QtWidgets, QtMultimediaWidgets
@@ -19,9 +21,11 @@ from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtWidgets import QFileDialog, QProgressBar, QListWidgetItem, QLabel, QMessageBox, QGridLayout, QCheckBox
 
 from fileEventDetailView import fileEventDetailView
+from fileRecord import fileRecord
 from fileRecordView_finish import fileRecordView_finish
 from fileRecordView_wait import fileRecordView_wait
 from settingView import settingView
+from threadDemo import threadDemo
 from videoSlider import videoSlider
 
 
@@ -43,9 +47,18 @@ class Ui_MainWindow(object):
         # 事件列表
         self.list_event_py = ["taibiao_1", "taibiao_2", "taibiao_3", "taibiao_4", "taibiao_5", "taibiao_6", 
                               "taibiao_7", "taibiao_8", "taibiao_9", "taibiao_10", "taibiao_11", "taibiao_12", 
-                              "taibiao_13", "taibiao_14", "taibiao_15", "taibiao_16", "ttv", "voa", "xtr", "smoke"]
+                              "taibiao_13", "taibiao_14", "taibiao_15", "taibiao_16", "ttv", "voa", "xtr", 
+                              "zhuangjia", "daoju", "qiangzhi", "smoke"]
         self.list_event = ["台标1", "台标2", "台标3", "台标4", "台标5", "台标6", "台标7", "台标8", "台标9", "台标10", "台标11", 
-                           "台标12", "台标13", "台标14", "台标15", "台标16", "ttv", "voa", "xtr", "吸烟"]
+                           "台标12", "台标13", "台标14", "台标15", "台标16", "ttv", "voa", "xtr", "装甲", "刀具", "枪支", "吸烟"]
+        # 总帧数
+        self.num_frame = 0
+        # 处理好的视频的帧数之和
+        self.num_handled = 0
+        # 当前处理的视频的总帧数
+        self.num_frame_cur = 0
+        # 当前处理的视频的处理好的帧数
+        self.num_handled_cur = 0
 
     def setupUi(self, MainWindow):
         # 最外围的主窗口，不要改动
@@ -136,9 +149,12 @@ class Ui_MainWindow(object):
         self.widget_right_up.setGeometry(QtCore.QRect(0, 0, 800, 50))
         self.widget_right_up.setObjectName("widget_right_up")
         self.progress = QProgressBar(self.widget_right_up)
-        self.progress.setValue(25)
-        self.progress.setGeometry(QtCore.QRect(22, 20, 750, 50))
+        self.progress.setValue(0)
+        self.progress.setGeometry(QtCore.QRect(22, 20, 650, 50))
         self.progress.setObjectName("progress")
+        self.progress_label = QLabel(self.widget_right_up)
+        self.progress_label.setObjectName("progress_label")
+        self.progress_label.setGeometry(QtCore.QRect(682, 20, 80, 50))
 
         # 右侧中部的视频播放，主要控制路径为中部的播放按钮和进度条以及右侧下部的播放按钮
         self.widget_right_middle = QtWidgets.QWidget(self.widget_right)
@@ -234,6 +250,7 @@ class Ui_MainWindow(object):
         self.stackedWidget_right_down_right.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.addAction()
+        self.startHandle()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -260,9 +277,9 @@ class Ui_MainWindow(object):
         self.sld_audio.sliderReleased.connect(self.volumeChanged)  # 打印修改后的音量
 
         # 控制进度条的源头
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.updateProgress)
-        self.timer.start(randint(1, 3) * 1000)
+        # self.timer = QTimer()
+        # self.timer.timeout.connect(self.updateProgress)
+        # self.timer.start(randint(1, 3) * 1000)
 
         # 控制转换页面
         self.listView_left_left.currentRowChanged.connect(
@@ -273,6 +290,30 @@ class Ui_MainWindow(object):
         # 在添加checkbox的时候就添加了槽函数
         
         # 文件列表槽函数
+        
+    # 启动线程开始处理视频
+    # 首先计算出总的视频的帧数和处理好的视频的帧数
+    # 然后选择等待处理列表里面的一个视频开始处理，获取这个视频的总帧数
+    def startHandle(self):
+        # 计算视频总帧数以及处理好的帧数
+        for i in range(len(self.csv_df)):
+            cur = self.csv_df.iloc[i]
+            cap = cv2.VideoCapture(cur['filepath'])
+            cur_frame = cap.get(7)
+            if cur['status'] == 1:
+                self.num_handled += cur_frame
+            self.num_frame += cur_frame
+        self.progress_label.setText(str(self.num_handled) + '/' + str(self.num_frame))
+        df_wait = self.csv_df[self.csv_df["status"] == 0]
+        if len(df_wait) == 0:
+            return
+        df_cur = df_wait.iloc[0]
+        cap = cv2.VideoCapture(df_cur['filepath'])
+        self.num_frame_cur = cap.get(7)
+        self._thread = threadDemo(df_cur)
+        self._thread.finished.connect(self._thread.deleteLater)
+        self._thread.valueChanged.connect(self.updateProgress)
+        self._thread.start()  # 启动线程
 
     # 加载设置界面
     def load_setting(self):
@@ -449,11 +490,38 @@ class Ui_MainWindow(object):
 
     def openVideoFile(self):
         # temp = QFileDialog.getOpenFileUrl()[0]
-        # print(temp)
+        # print(temp.toString()[7:])
         # self.player.setMedia(QMediaContent(temp))  # 选取视频文件
         # self.player.play()  # 播放视频
         # print("availableMetaData: " + str(self.player.availableMetaData()))
-        pass
+        # 上传文件响应的槽函数，这个是上传单个文件，主要是将该视频文件添加到csv_df中，
+        # 当前处理视频文件的线程打开方式是一个视频文件处理完启动下一个视频文件的处理，所以需要在当前文件添加到csv_df中之后
+        # 首先判断当前是否还有文件在等待处理，如果有就结束，假如没有就启动当前添加文件的处理
+        filename = QFileDialog.getOpenFileNames(filter='videos: (*.mp4)')[0]
+        if len(filename) == 0:
+            print('没有选择任何文件')
+            return
+        print('选择了文件', filename)
+        df_wait = self.csv_df[self.csv_df["status"] == 0]
+        index = len(self.csv_df)
+        record_cur = fileRecord(index, filename[0], 0, '')
+        for i, cur_event in enumerate(self.list_event_py):
+            if self.dict_setting[cur_event]:
+                record_cur.__setattr__(cur_event, 1)
+        if len(df_wait) == 0:
+            self.csv_df = self.csv_df.append(pd.Series(record_cur.__dict__), ignore_index=True)
+            self.csv_df.to_csv('file.csv')
+            # 开启处理该文件
+            df_cur = self.csv_df[self.csv_df["index"] == index].iloc[0]
+            cap = cv2.VideoCapture(df_cur['filepath'])
+            self.num_frame_cur = cap.get(7)
+            self._thread = threadDemo(df_cur)
+            self._thread.finished.connect(self._thread.deleteLater)
+            self._thread.valueChanged.connect(self.updateProgress)
+            self._thread.start()  # 启动线程
+        else:
+            self.csv_df = self.csv_df.append(pd.Series(record_cur.__dict__), ignore_index=True)
+            self.csv_df.to_csv('file.csv')
 
     # 控制视频播放与否的按钮
     def changeVideoStatus(self):
@@ -476,13 +544,15 @@ class Ui_MainWindow(object):
             print(self.dict_setting)
 
     # 每隔一秒更新一次系统进度条和当前的进度条
-    def updateProgress(self):
+    def updateProgress(self, i):
         # if self.progress.value() >= 100:
         #     self.timer.stop()
         #     self.timer.deleteLater()
         #     del self.timer
         #     return
-        self.progress.setValue(self.progress.value() + 2)
+        self.num_handled_cur = i
+        self.progress.setValue(int((self.num_handled_cur + self.num_handled) * 100 / self.num_frame))
+        self.progress_label.setText(str(self.num_handled + self.num_handled_cur) + '/' + str(self.num_frame))
 
     # 利用子线程来处理视频，在过程中需要实时改变系统进度条的值，也就是当前已处理完的帧
     def handleVideo(self):

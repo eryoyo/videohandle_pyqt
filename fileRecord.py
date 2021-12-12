@@ -12,7 +12,7 @@ class fileRecord(object):
     def __init__(self, index, filepath, status=0, process_path="", taibiao_1=0, taibiao_2=0, 
                  taibiao_3=0, taibiao_4=0, taibiao_5=0, taibiao_6=0, taibiao_7=0, taibiao_8=0, 
                  taibiao_9=0, taibiao_10=0, taibiao_11=0, taibiao_12=0, taibiao_13=0, taibiao_14=0, 
-                 taibiao_15=0, taibiao_16=0, ttv=0, voa=0, xtr=0, smoke=0):
+                 taibiao_15=0, taibiao_16=0, ttv=0, voa=0, xtr=0, zhuangjia=0, daoju=0, qiangzhi=0, smoke=0):
         self.index = index
         self.filepath = filepath
         self.status = status
@@ -36,6 +36,9 @@ class fileRecord(object):
         self.ttv = ttv
         self.voa = voa
         self.xtr = xtr
+        self.zhuangjia = zhuangjia
+        self.daoju = daoju
+        self.qiangzhi = qiangzhi
         self.smoke = smoke
         
     def keys(self):
@@ -43,7 +46,7 @@ class fileRecord(object):
         # 但是对象是不可以以这种方式取值的, 为了支持这种取值, 可以为类增加一个方法
         return "index", "filepath", "status", "process_path", "taibiao_1", "taibiao_2", "taibiao_3", "taibiao_4", "taibiao_5", "taibiao_6", \
                               "taibiao_7", "taibiao_8", "taibiao_9", "taibiao_10", "taibiao_11", "taibiao_12", \
-                              "taibiao_13", "taibiao_14", "taibiao_15", "taibiao_16", "ttv", "voa", "xtr", "smoke"
+                              "taibiao_13", "taibiao_14", "taibiao_15", "taibiao_16", "ttv", "voa", "xtr", "zhuangjia", "daoju", "qiangzhi", "smoke"
     
     def __getitem__(self, item):
         # 内置方法, 当使用obj['name']的形式的时候, 将调用这个方法, 这里返回的结果就是值
