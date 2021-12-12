@@ -1,10 +1,6 @@
-import os.path
-
-from PyQt5.QtCore import pyqtSignal, QRect
-from PyQt5.QtGui import QPixmap, QImage, QTextOption, QColor, QMouseEvent
-from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QTextEdit, QFrame, QProgressBar, QCheckBox
 from PyQt5 import QtCore
-import cv2
+from PyQt5.QtCore import pyqtSignal, QRect
+from PyQt5.QtWidgets import QWidget, QCheckBox
 
 
 # 填充在wait列表里面的widget
