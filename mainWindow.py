@@ -309,10 +309,10 @@ class Ui_MainWindow(object):
         df_wait = self.csv_df[self.csv_df["status"] == 0]
         if len(df_wait) == 0:
             return
-        df_cur = df_wait.iloc[0]
-        cap = cv2.VideoCapture(df_cur['filepath'])
+        self.df_cur = df_wait.iloc[0]
+        cap = cv2.VideoCapture(self.df_cur['filepath'])
         self.num_frame_cur = cap.get(7)
-        self._thread = threadDemo(df_cur)
+        self._thread = threadDemo(self.df_cur)
         self._thread.finished.connect(self._thread.deleteLater)
         self._thread.valueChanged.connect(self.updateProgress)
         self._thread.start()  # 启动线程
@@ -356,6 +356,7 @@ class Ui_MainWindow(object):
             self.listWidget_page_wait.setItemWidget(item, item_wait)
         print("等待处理视频列表界面加载完毕。。。")
         
+    # 槽函数：finish界面的文件项被选择了
     def finishitem_selected(self, index):
         print(str(index) + "finish被选择了")
         curItem = self.csv_df[self.csv_df["index"] == index].iloc[0]
@@ -365,9 +366,9 @@ class Ui_MainWindow(object):
         self.player.setMedia(QMediaContent(pathUrl))  # 选取视频文件
         self.player.play()  # 播放视频
         # 视频处理列表需要加载，一个视频对应一个处理文件
-        eventFilePath = curItem["process_path"]
-        csv_event = pd.read_csv(eventFilePath, index_col=0)
+        self.load_right_down(index=index)
             
+    # 槽函数：wait界面的文件项被选择了
     def waititem_selected(self, index):
         print(str(index) + "wait被选择了")
         curItem = self.csv_df[self.csv_df["index"] == index].iloc[0]
@@ -377,6 +378,7 @@ class Ui_MainWindow(object):
         self.player.setMedia(QMediaContent(pathUrl))  # 选取视频文件
         self.player.play()  # 播放视频
         
+    # 根据index的设置来加载对应的事件界面
     def load_right_down(self, index=-1):
         if index == -1:
             finish_df = self.csv_df[self.csv_df["status"] == 1]
@@ -387,6 +389,7 @@ class Ui_MainWindow(object):
             loadItem = self.csv_df[self.csv_df["index"] == index].iloc[0]
             self.load_right_down_Byitem(loadItem)
             
+    # 根据file文件中的某一项来加载对应的事件页面
     def load_right_down_Byitem(self, loadItem):
         # 加载right_down_left
         list_happen = []
@@ -404,6 +407,7 @@ class Ui_MainWindow(object):
         process_path = loadItem["process_path"]
         self.load_right_down_Byfile(process_path, list_happen, loadItem["filepath"])
     
+    # 根据事件文件的名称来加载对应的视频文件事件项
     def load_right_down_Byfile(self, process_path, list_happen, filepath):
         event_df = pd.read_csv(process_path)
         for event in list_happen:
@@ -416,7 +420,8 @@ class Ui_MainWindow(object):
             self.load_page_right_down_right(event_df_cur, listWidget_page_right_down_right, filepath)
             self.stackedWidget_right_down_right.addWidget(page_right_down_right)
             print("完成处理：", event)
-        
+    
+    # 加载每一个事件类型的子页面    
     def load_page_right_down_right(self, event_df_cur, listWidget_page_right_down_right, filepath):
         for i in range(len(event_df_cur)):
             item = QListWidgetItem(listWidget_page_right_down_right)
@@ -424,7 +429,8 @@ class Ui_MainWindow(object):
             item_finish = fileEventDetailView(event_df_cur.iloc[i], filepath)
             item_finish.btn_play_clicked.connect(self.play_item)
             listWidget_page_right_down_right.setItemWidget(item, item_finish)
-            
+    
+    # 槽函数：点击来视频事件列表里面的某一项        
     def play_item(self, start):
         self.player.setPosition(start)
         
@@ -505,25 +511,32 @@ class Ui_MainWindow(object):
             return
         print('选择了文件', filename)
         df_wait = self.csv_df[self.csv_df["status"] == 0]
+        len_handled = len(df_wait)
         index = len(self.csv_df)
         record_cur = fileRecord(index, filename[0], 0, '')
         for i, cur_event in enumerate(self.list_event_py):
             if self.dict_setting[cur_event]:
                 record_cur.__setattr__(cur_event, 1)
-        if len(df_wait) == 0:
-            self.csv_df = self.csv_df.append(pd.Series(record_cur.__dict__), ignore_index=True)
-            self.csv_df.to_csv('file.csv')
-            # 开启处理该文件
-            df_cur = self.csv_df[self.csv_df["index"] == index].iloc[0]
-            cap = cv2.VideoCapture(df_cur['filepath'])
-            self.num_frame_cur = cap.get(7)
-            self._thread = threadDemo(df_cur)
+        self.csv_df = self.csv_df.append(pd.Series(record_cur.__dict__), ignore_index=True)
+        self.csv_df.to_csv('file.csv')
+        # 开启处理该文件
+        # 将该文件的总帧数添加到整个系统中添加文件的总帧数
+        self.df_cur = self.csv_df[self.csv_df["index"] == index].iloc[0]
+        cap = cv2.VideoCapture(self.df_cur['filepath'])
+        frame_cur = cap.get(7)
+        self.num_frame += frame_cur
+        # 将该文件添加到处理列表当中
+        item = QListWidgetItem(self.listWidget_page_wait)
+        item.setSizeHint(QSize(300, 80))
+        item_wait = fileRecordView_wait(self.df_cur)
+        item_wait.itemSelected.connect(self.waititem_selected)
+        self.listWidget_page_wait.setItemWidget(item, item_wait)
+        if len_handled == 0:
+            self.num_frame_cur = frame_cur
+            self._thread = threadDemo(self.df_cur)
             self._thread.finished.connect(self._thread.deleteLater)
             self._thread.valueChanged.connect(self.updateProgress)
             self._thread.start()  # 启动线程
-        else:
-            self.csv_df = self.csv_df.append(pd.Series(record_cur.__dict__), ignore_index=True)
-            self.csv_df.to_csv('file.csv')
 
     # 控制视频播放与否的按钮
     def changeVideoStatus(self):
@@ -556,18 +569,36 @@ class Ui_MainWindow(object):
         if self.num_handled_cur == self.num_frame_cur:
             self.num_handled += self.num_frame_cur
             self.num_handled_cur = 0
+            self.num_frame_cur = 0
+            # 将当前文件的状态修改为已完成
+            index = self.df_cur['index']
+            self.csv_df.iloc[index, 2] = 1
+            self.csv_df.to_csv('file.csv')
+            # 将当前的文件从wait里面去掉
+            item = self.listWidget_page_wait.takeItem(0)
+            self.listWidget_page_wait.removeItemWidget(item)
+            # 将当前文件添加到处理结束finish列表里面
+            item = QListWidgetItem(self.listWidget_page_finish)
+            item.setSizeHint(QSize(300, 80))
+            item_finish = fileRecordView_finish(self.df_cur)
+            item_finish.itemSelected.connect(self.finishitem_selected)
+            self.listWidget_page_finish.setItemWidget(item, item_finish)
+            
+            # 选择一个新的视频进行处理
             df_wait = self.csv_df[self.csv_df["status"] == 0]
             if len(df_wait) == 0:
                 return
-            df_cur = df_wait.iloc[0]
-            cap = cv2.VideoCapture(df_cur['filepath'])
+            self.df_cur = df_wait.iloc[0]
+            cap = cv2.VideoCapture(self.df_cur['filepath'])
             self.num_frame_cur = cap.get(7)
-            self._thread = threadDemo(df_cur)
+            self._thread = threadDemo(self.df_cur)
             self._thread.finished.connect(self._thread.deleteLater)
             self._thread.valueChanged.connect(self.updateProgress)
             self._thread.start()  # 启动线程
+        # 更新整体进度值
         self.progress.setValue(int((self.num_handled_cur + self.num_handled) * 100 / self.num_frame))
         self.progress_label.setText(str(self.num_handled + self.num_handled_cur) + '/' + str(self.num_frame))
+        # self.listWidget_page_wait.takeItem(0)..progress_wait.setValue(100 * self.num_handled_cur / self.num_frame_cur)
 
     # 利用子线程来处理视频，在过程中需要实时改变系统进度条的值，也就是当前已处理完的帧
     def handleVideo(self):
