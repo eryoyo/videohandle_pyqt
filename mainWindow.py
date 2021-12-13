@@ -150,11 +150,11 @@ class Ui_MainWindow(object):
         self.widget_right_up.setObjectName("widget_right_up")
         self.progress = QProgressBar(self.widget_right_up)
         self.progress.setValue(0)
-        self.progress.setGeometry(QtCore.QRect(22, 20, 650, 50))
+        self.progress.setGeometry(QtCore.QRect(22, 20, 550, 50))
         self.progress.setObjectName("progress")
         self.progress_label = QLabel(self.widget_right_up)
         self.progress_label.setObjectName("progress_label")
-        self.progress_label.setGeometry(QtCore.QRect(682, 20, 80, 50))
+        self.progress_label.setGeometry(QtCore.QRect(582, 10, 180, 50))
 
         # 右侧中部的视频播放，主要控制路径为中部的播放按钮和进度条以及右侧下部的播放按钮
         self.widget_right_middle = QtWidgets.QWidget(self.widget_right)
@@ -295,7 +295,7 @@ class Ui_MainWindow(object):
     # 首先计算出总的视频的帧数和处理好的视频的帧数
     # 然后选择等待处理列表里面的一个视频开始处理，获取这个视频的总帧数
     def startHandle(self):
-        # 计算视频总帧数以及处理好的帧数
+        # 计算视频总帧数以及处理好的视频的帧数
         for i in range(len(self.csv_df)):
             cur = self.csv_df.iloc[i]
             cap = cv2.VideoCapture(cur['filepath'])
@@ -304,6 +304,8 @@ class Ui_MainWindow(object):
                 self.num_handled += cur_frame
             self.num_frame += cur_frame
         self.progress_label.setText(str(self.num_handled) + '/' + str(self.num_frame))
+        
+        # 开启子线程开始处理视频文件
         df_wait = self.csv_df[self.csv_df["status"] == 0]
         if len(df_wait) == 0:
             return
@@ -550,7 +552,20 @@ class Ui_MainWindow(object):
         #     self.timer.deleteLater()
         #     del self.timer
         #     return
-        self.num_handled_cur = i
+        self.num_handled_cur = i + 1
+        if self.num_handled_cur == self.num_frame_cur:
+            self.num_handled += self.num_frame_cur
+            self.num_handled_cur = 0
+            df_wait = self.csv_df[self.csv_df["status"] == 0]
+            if len(df_wait) == 0:
+                return
+            df_cur = df_wait.iloc[0]
+            cap = cv2.VideoCapture(df_cur['filepath'])
+            self.num_frame_cur = cap.get(7)
+            self._thread = threadDemo(df_cur)
+            self._thread.finished.connect(self._thread.deleteLater)
+            self._thread.valueChanged.connect(self.updateProgress)
+            self._thread.start()  # 启动线程
         self.progress.setValue(int((self.num_handled_cur + self.num_handled) * 100 / self.num_frame))
         self.progress_label.setText(str(self.num_handled + self.num_handled_cur) + '/' + str(self.num_frame))
 

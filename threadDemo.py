@@ -34,6 +34,7 @@ class threadDemo(QThread):
             self.valueChanged.emit(i)
             print(self.filepath, '当前处理到value', i)
             QThread.sleep(1)
+        self.valueChanged.emit(self.frame_num - 1)
         # 最后需要将当前视频文件中的检测事件保存起来
         print(self.filepath, "视频处理结束。。。")
         

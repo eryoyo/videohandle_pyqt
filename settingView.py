@@ -19,9 +19,9 @@ class settingView(QWidget):
 
         # 设置界面的复选框
         self.checkBox = QCheckBox(self)
-        self.checkBox.setGeometry(QRect(10, 10, 200, 20))
+        self.checkBox.setGeometry(QRect(10, 10, 300, 20))
         self.checkBox.setObjectName('checkBox')
-        self.checkBox.setText(event)
+        self.checkBox.setText('\t\t********************\t\t' + event)
         self.checkBox.setChecked(self.checked)
         self.checkBox.stateChanged.connect(lambda: self.stateChanged(self.event_py))
 
