@@ -50,15 +50,15 @@ class fileRecordView_wait(QWidget):
         self.label_path.setText("path:")
         self.label_filepath.setText(self.filepath)
         
-        # 进度条
-        self.layoutWidget = QWidget(self)
-        self.layoutWidget.setGeometry(QtCore.QRect(90, 20, 200, 38))
-        self.layoutWidget.setObjectName("layoutWidget")
-        # self.layoutWidget.setStyleSheet("background: black")
-        self.progress_wait = QProgressBar(self.layoutWidget)
-        self.progress_wait.setValue(25)
-        self.progress_wait.setGeometry(QtCore.QRect(5, 5, 180, 30))
-        self.progress_wait.setObjectName("progress_wait")
+        # 进度条 现在已经提出来了
+        # self.layoutWidget = QWidget(self)
+        # self.layoutWidget.setGeometry(QtCore.QRect(90, 20, 200, 38))
+        # self.layoutWidget.setObjectName("layoutWidget")
+        # # self.layoutWidget.setStyleSheet("background: black")
+        # self.progress_wait = QProgressBar(self.layoutWidget)
+        # self.progress_wait.setValue(25)
+        # self.progress_wait.setGeometry(QtCore.QRect(5, 5, 180, 30))
+        # self.progress_wait.setObjectName("progress_wait")
         QtCore.QMetaObject.connectSlotsByName(self)
             
     def mouseReleaseEvent(self, a0: QMouseEvent) -> None:

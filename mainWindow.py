@@ -26,6 +26,7 @@ from fileRecordView_finish import fileRecordView_finish
 from fileRecordView_wait import fileRecordView_wait
 from settingView import settingView
 from threadDemo import threadDemo
+from thread_right_down import thread_right_down
 from videoSlider import videoSlider
 
 
@@ -228,13 +229,16 @@ class Ui_MainWindow(object):
         self.listWidget_right_down_left = QtWidgets.QListWidget(self.layoutWidget1)
         self.listWidget_right_down_left.setMaximumSize(QtCore.QSize(88, 16777215))
         self.listWidget_right_down_left.setObjectName("listWidget_right_down_left")
-        
-        self.stackedWidget_right_down_right = QtWidgets.QStackedWidget(self.layoutWidget1)
-        self.stackedWidget_right_down_right.setObjectName("stackedWidget_right_down_right")
+
+        self.listWidget_right_down_right = QtWidgets.QListWidget(self.layoutWidget1)
+        self.listWidget_right_down_right.setObjectName("listWidget_right_down_right")
+        # self.stackedWidget_right_down_right = QtWidgets.QStackedWidget(self.layoutWidget1)
+        # self.stackedWidget_right_down_right.setObjectName("stackedWidget_right_down_right")
 
         self.load_right_down()
         self.horizontalLayout_right_down.addWidget(self.listWidget_right_down_left)
-        self.horizontalLayout_right_down.addWidget(self.stackedWidget_right_down_right)
+        # self.horizontalLayout_right_down.addWidget(self.stackedWidget_right_down_right)
+        self.horizontalLayout_right_down.addWidget(self.listWidget_right_down_right)
 
         # 后期补充菜单栏和状态栏，不紧迫
         MainWindow.setCentralWidget(self.centralwidget)
@@ -247,7 +251,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget_right_down_right.setCurrentIndex(0)
+        # self.stackedWidget_right_down_right.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.addAction()
         self.startHandle()
@@ -284,7 +288,7 @@ class Ui_MainWindow(object):
         # 控制转换页面
         self.listView_left_left.currentRowChanged.connect(
             lambda cur: self.stackedWidget_left_right.setCurrentIndex(cur))
-        self.listWidget_right_down_left.currentRowChanged.connect(self.stackedWidget_right_down_right.setCurrentIndex)
+        self.listWidget_right_down_left.currentRowChanged.connect(self.load_right_down_Byfile)
 
         # 设置页面的槽函数
         # 在添加checkbox的时候就添加了槽函数
@@ -313,7 +317,7 @@ class Ui_MainWindow(object):
         cap = cv2.VideoCapture(self.df_cur['filepath'])
         self.num_frame_cur = cap.get(7)
         self._thread = threadDemo(self.df_cur)
-        self._thread.finished.connect(self._thread.deleteLater)
+        self._thread.finished.connect(self.threadFinish)
         self._thread.valueChanged.connect(self.updateProgress)
         self._thread.start()  # 启动线程
 
@@ -358,6 +362,12 @@ class Ui_MainWindow(object):
         
     # 槽函数：finish界面的文件项被选择了
     def finishitem_selected(self, index):
+        # 首先清空right_down的内容
+        for _ in range(self.listWidget_right_down_left.count()):
+            item = self.listWidget_right_down_left.takeItem(0)
+            # 删除widget
+            self.listWidget_right_down_left.removeItemWidget(item)
+            del item
         print(str(index) + "finish被选择了")
         curItem = self.csv_df[self.csv_df["index"] == index].iloc[0]
         # 视频加载
@@ -388,7 +398,7 @@ class Ui_MainWindow(object):
         else:
             loadItem = self.csv_df[self.csv_df["index"] == index].iloc[0]
             self.load_right_down_Byitem(loadItem)
-            
+
     # 根据file文件中的某一项来加载对应的事件页面
     def load_right_down_Byitem(self, loadItem):
         # 加载right_down_left
@@ -403,33 +413,32 @@ class Ui_MainWindow(object):
                 # 文字居中
                 item.setTextAlignment(Qt.AlignCenter)
         
+        self.list_happen = list_happen
         # 加载right_down_right
-        process_path = loadItem["process_path"]
-        self.load_right_down_Byfile(process_path, list_happen, loadItem["filepath"])
-    
+        self.process_path = loadItem["process_path"]
+        self.filepath = loadItem["filepath"]
+        if len(self.list_happen) == 0:
+            return
+        self.load_right_down_Byfile()
+
     # 根据事件文件的名称来加载对应的视频文件事件项
-    def load_right_down_Byfile(self, process_path, list_happen, filepath):
-        event_df = pd.read_csv(process_path)
-        for event in list_happen:
-            print("开始处理：", event)
-            event_df_cur = event_df[event_df["type"] == event]
-            page_right_down_right = QtWidgets.QWidget(self.stackedWidget_right_down_right)
-            page_right_down_right.setObjectName("page_right_down_right")
-            listWidget_page_right_down_right = QtWidgets.QListWidget(page_right_down_right)
-            listWidget_page_right_down_right.setGeometry(QtCore.QRect(0, 0, 703, 328))
-            self.load_page_right_down_right(event_df_cur, listWidget_page_right_down_right, filepath)
-            self.stackedWidget_right_down_right.addWidget(page_right_down_right)
-            print("完成处理：", event)
-    
+    def load_right_down_Byfile(self, event_index=0,):
+        event_df = pd.read_csv(self.process_path)
+        event = self.list_happen[event_index]
+        print("开始处理：", event)
+        event_df_cur = event_df[event_df["type"] == event]
+        self.load_page_right_down_right(event_df_cur, self.filepath)
+        print("完成处理：", event)
+
     # 加载每一个事件类型的子页面    
-    def load_page_right_down_right(self, event_df_cur, listWidget_page_right_down_right, filepath):
+    def load_page_right_down_right(self, event_df_cur, filepath):
         for i in range(len(event_df_cur)):
-            item = QListWidgetItem(listWidget_page_right_down_right)
+            item = QListWidgetItem(self.listWidget_right_down_right)
             item.setSizeHint(QSize(700, 60))
             item_finish = fileEventDetailView(event_df_cur.iloc[i], filepath)
             item_finish.btn_play_clicked.connect(self.play_item)
-            listWidget_page_right_down_right.setItemWidget(item, item_finish)
-    
+            self.listWidget_right_down_right.setItemWidget(item, item_finish)
+
     # 槽函数：点击来视频事件列表里面的某一项        
     def play_item(self, start):
         self.player.setPosition(start)
@@ -534,7 +543,7 @@ class Ui_MainWindow(object):
         if len_handled == 0:
             self.num_frame_cur = frame_cur
             self._thread = threadDemo(self.df_cur)
-            self._thread.finished.connect(self._thread.deleteLater)
+            self._thread.finished.connect(self.threadFinish)
             self._thread.valueChanged.connect(self.updateProgress)
             self._thread.start()  # 启动线程
 
@@ -558,47 +567,46 @@ class Ui_MainWindow(object):
             print("设置更新完成")
             print(self.dict_setting)
 
-    # 每隔一秒更新一次系统进度条和当前的进度条
+    # 槽函数：根据处理视频的子线程发出的信号来更新一次系统进度条和当前的进度条
     def updateProgress(self, i):
-        # if self.progress.value() >= 100:
-        #     self.timer.stop()
-        #     self.timer.deleteLater()
-        #     del self.timer
-        #     return
         self.num_handled_cur = i + 1
-        if self.num_handled_cur == self.num_frame_cur:
-            self.num_handled += self.num_frame_cur
-            self.num_handled_cur = 0
-            self.num_frame_cur = 0
-            # 将当前文件的状态修改为已完成
-            index = self.df_cur['index']
-            self.csv_df.iloc[index, 2] = 1
-            self.csv_df.to_csv('file.csv')
-            # 将当前的文件从wait里面去掉
-            item = self.listWidget_page_wait.takeItem(0)
-            self.listWidget_page_wait.removeItemWidget(item)
-            # 将当前文件添加到处理结束finish列表里面
-            item = QListWidgetItem(self.listWidget_page_finish)
-            item.setSizeHint(QSize(300, 80))
-            item_finish = fileRecordView_finish(self.df_cur)
-            item_finish.itemSelected.connect(self.finishitem_selected)
-            self.listWidget_page_finish.setItemWidget(item, item_finish)
-            
-            # 选择一个新的视频进行处理
-            df_wait = self.csv_df[self.csv_df["status"] == 0]
-            if len(df_wait) == 0:
-                return
-            self.df_cur = df_wait.iloc[0]
-            cap = cv2.VideoCapture(self.df_cur['filepath'])
-            self.num_frame_cur = cap.get(7)
-            self._thread = threadDemo(self.df_cur)
-            self._thread.finished.connect(self._thread.deleteLater)
-            self._thread.valueChanged.connect(self.updateProgress)
-            self._thread.start()  # 启动线程
         # 更新整体进度值
         self.progress.setValue(int((self.num_handled_cur + self.num_handled) * 100 / self.num_frame))
         self.progress_label.setText(str(self.num_handled + self.num_handled_cur) + '/' + str(self.num_frame))
         # self.listWidget_page_wait.takeItem(0)..progress_wait.setValue(100 * self.num_handled_cur / self.num_frame_cur)
+    
+    # 一个视频处理结束之后产生的信号
+    def threadFinish(self):
+        self._thread.deleteLater()
+        self.num_handled += self.num_frame_cur
+        self.num_handled_cur = 0
+        self.num_frame_cur = 0
+        # 将当前文件的状态修改为已完成
+        index = self.df_cur['index']
+        self.csv_df.iloc[index, 2] = 1
+        self.csv_df.to_csv('file.csv')
+        # 将当前的文件从wait里面去掉
+        item = self.listWidget_page_wait.takeItem(0)
+        self.listWidget_page_wait.removeItemWidget(item)
+        # 将当前文件添加到处理结束finish列表里面
+        item = QListWidgetItem(self.listWidget_page_finish)
+        item.setSizeHint(QSize(300, 80))
+        item_finish = fileRecordView_finish(self.df_cur)
+        item_finish.itemSelected.connect(self.finishitem_selected)
+        self.listWidget_page_finish.setItemWidget(item, item_finish)
+
+        # 选择一个新的视频进行处理
+        df_wait = self.csv_df[self.csv_df["status"] == 0]
+        if len(df_wait) == 0:
+            return
+        self.df_cur = df_wait.iloc[0]
+        cap = cv2.VideoCapture(self.df_cur['filepath'])
+        self.num_frame_cur = cap.get(7)
+        self._thread = threadDemo(self.df_cur)
+        self._thread.finished.connect(self.threadFinish)
+        self._thread.valueChanged.connect(self.updateProgress)
+        self._thread.start()  # 启动线程
+        
 
     # 利用子线程来处理视频，在过程中需要实时改变系统进度条的值，也就是当前已处理完的帧
     def handleVideo(self):
