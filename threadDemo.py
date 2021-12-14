@@ -27,7 +27,7 @@ class threadDemo(QThread):
         while i < self.frame_num - 1:
             if self.isInterruptionRequested():
                 break
-            rn = randint(150, 250)
+            rn = randint(20, 50)
             i += rn
             if i >= self.frame_num:
                 i = int(self.frame_num - 1)

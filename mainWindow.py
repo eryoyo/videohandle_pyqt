@@ -432,6 +432,10 @@ class Ui_MainWindow(object):
 
     # 加载每一个事件类型的子页面    
     def load_page_right_down_right(self, event_df_cur, filepath):
+        for _ in range(self.listWidget_right_down_right.count()):
+            item = self.listWidget_right_down_right.takeItem(0)
+            self.listWidget_right_down_right.removeItemWidget(item)
+            del item
         for i in range(len(event_df_cur)):
             item = QListWidgetItem(self.listWidget_right_down_right)
             item.setSizeHint(QSize(700, 60))
