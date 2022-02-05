@@ -10,6 +10,7 @@ import cv2
 
 '''
 模拟的后端处理
+后端负责接收每一帧并解析出来，经过各种子模块的处理后将结果返回
 '''
 
 
@@ -23,6 +24,7 @@ class FrameReceiver:
         self.channel.start_consuming()
 
     def callback(self, ch, method, properties, body):
+        # 解析接收到的结果
         message = Frame()
         message.ParseFromString(body)
         fileIndex = message.fileIndex
@@ -34,6 +36,10 @@ class FrameReceiver:
         imgarr = np.frombuffer(img, dtype=np.uint8).reshape(width, height, -1)
         print(imgarr.shape)
         time.sleep(0.05)
+        #################
+        # 处理该帧
+        #################
+        # 将处理完成的结果返回前端
         resultSender = ResultSender()
         resultSender.produce(fileIndex, frameIndex)
         # cv2.imshow('get', imgarr)

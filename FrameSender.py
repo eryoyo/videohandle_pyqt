@@ -3,6 +3,7 @@ from data_pb2 import Frame
 
 '''
 发送图片到后端
+将帧通过消息队列转到后端
 '''
 
 

@@ -453,17 +453,38 @@ class Ui_MainWindow(QObject):
         # 因为单帧处理变为异步操作所以在所有的帧处理请求加入到消息队列之中之后并不意味着视频文件的处理完成，在此处不需要结束响应
         # self.handleFinished.emit(cur['filepath'])
     
+    '''
+    传送帧信息到后端的响应函数
+    @params:
+        index: 视频文件的序号
+        i: 帧的序号
+        img_src: 图片
+        frame_width: 图片宽度
+        frame_height: 图片高度
+    '''
     def frameSending_func(self, index, i, img_src, frame_width, frame_height):
         if not self.executor_send:
             self.executor_send = ThreadPoolExecutor(max_workers=5)
         task = self.executor_send.submit(self.frameSending_func_impl, index, i, img_src, frame_width, frame_height)
         self.task_list_send.append(task)
 
+    '''
+    传送帧信息到后端的响应函数
+    @params:
+        index: 视频文件的序号
+        i: 帧的序号
+        img_src: 图片
+        frame_width: 图片宽度
+        frame_height: 图片高度
+    '''
     def frameSending_func_impl(self, index, i, img_src, frame_width, frame_height):
         print(str(index), '*', str(i), '*', str(frame_width), '*', str(frame_height))
         frame = base64.b64encode(img_src)
         self.frameSender.produce(index, i, frame, frame_width, frame_height)
         
+    '''
+    每处理好一帧之后发送信号的响应函数
+    '''
     def frameHandleOne(self):
         self.num_handled += 1
         
