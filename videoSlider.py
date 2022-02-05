@@ -3,6 +3,9 @@ from PyQt5.QtWidgets import QSlider
 
 class videoSlider(QSlider): 
     ClickedValue = pyqtSignal(int)
+    SliderReleased = pyqtSignal()
+    SliderMoved = pyqtSignal(int)
+    SliderPressed = pyqtSignal()
 
     def __init__(self, father):
         super().__init__(Qt.Horizontal, father)
@@ -13,3 +16,12 @@ class videoSlider(QSlider):
         # self.setValue(int(value)/9)
         value = round(value/self.width()*self.maximum())  # 根据鼠标点击的位置和slider的长度算出百分比
         self.ClickedValue.emit(value)
+    
+    def sliderReleased(self) -> None:
+        self.SliderReleased.emit()
+        
+    def sliderMoved(self, position: int) -> None:
+        self.SliderMoved.emit(position)
+        
+    def sliderPressed(self) -> None:
+        self.SliderPressed.emit()

@@ -85,6 +85,13 @@ if __name__ == '__main__':
     import sys
     import cgitb
 
+    # if len_handled == 0:
+    #     self.num_frame_cur = frame_cur
+    #     self._thread = threadDemo(self.df_cur)
+    #     self._thread.finished.connect(self.threadFinish)
+    #     self._thread.valueChanged.connect(self.updateProgress)
+    #     self._thread.start()  # 启动线程
+
     cgitb.enable(format='text')
     app = QApplication(sys.argv)
     w = Window()

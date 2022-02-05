@@ -1,8 +1,8 @@
 /*设置红色进度条*/
 #progress {
     border: 2px solid #bbbbee;/*边框以及边框颜色*/
-    min-height: 25px;
-    max-height: 25px;
+    /*min-height: 25px;*/
+    /*max-height: 25px;*/
     border-radius: 6px;
     text-align: center;
 }
