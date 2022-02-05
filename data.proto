@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+message Frame{
+    int32 fileIndex = 1;
+    int32 frameIndex = 2;
+    string b64image = 3;
+    int32 width = 4;
+    int32 height = 5;
+}
+
+message Result{
+    int32 fileIndex = 1;
+    int32 frameIndex = 2;
+}
